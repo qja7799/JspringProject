@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration
+		PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-config.dtd"><!-- 매퍼랑 컨피그는 xml 도큐먼트 태그가 다르니 주의할것 -->
+		
+<configuration>
+	<typeAliases>
+		<typeAlias alias="userVo" type="com.spring.JspringProject.vo"/>
+	</typeAliases>
+<!-- 		
+		루트컨텍스트에 있는 
+		<property name="typeAliasesPackage" value="com.spring.JspringProject.vo" />
+		이거랑 같은 역할인데 
+		똑같이 경로명이 너무 길어서 별칭지정한거임
+		그것들을 따로 빼서 xml로 만든거고
+		 -->
+</configuration>
+

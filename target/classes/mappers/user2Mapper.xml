@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.spring.JspringProject.dao.User2Dao"> <!-- 네임스페이스명은 맘대로 지정가능 -->
+
+<!-- 	<select id="getUserIdSearch" resultType="com.spring.JspringProject.vo.UserVo"> -->
+	<select id="getUserIdSearch" resultType="userVo">
+		select * from user where mid = #{mid}
+	</select>
+	
+<!-- 	<select id="getUserSearchPart" resultType="com.spring.JspringProject.vo.UserVo"> -->
+	<select id="getUserSearchPart" resultType="userVo">
+		select * from user where ${vo.part} = #{vo.content} limit 1
+	</select>
+	
+<!-- 	<select id="getUserList" resultType="com.spring.JspringProject.vo.UserVo"> -->
+	<select id="getUserList" resultType="userVo">
+		select * from user order by idx desc limit #{startIndexNo}, #{pageSize}
+	</select>
+	
+	<select id="getTotRecCnt" resultType="int">
+		select count(*) from user
+	</select>
+	
+	
+<!-- 	<select id="getSearchIdx" resultType="com.spring.JspringProject.vo.UserVo"> 
+// mybatis-config.xml에 경로 설정을 해줘서 이제 위처럼 안쓰고 별칭으로 사용이 가능함 -->
+	<select id="getSearchIdx" resultType="userVo">
+		select * from user where idx = #{idx}
+	</select>
+	
+	<!-- 게시글세기 -->
+	<select id="getUserCount" resultType="int"> 
+		select count(*) from user; 
+	</select>
+	
+	<!-- 동적쿼리사용 / 넘겨받은 order값에 따라 다른 sql을 실행 -->
+	<select id="getUserOrderList" resultType="userVo">
+		<if test='order =="idxDesc"'>
+			select * from user order by idx desc;
+		</if>
+		<if test='order !="idxDesc"'>
+			select * from user order by ${order};
+		</if>
+	</select>
+	
+
+<!-- mybatis-config.xml에 경로 설정을 해줫기에 파라미터타입에 그 경로의 별칭을 넣어줘서 #{vo.age}가 아닌 #{age}로 적을수있게되는거고
+	유저2다오에서 @Param("vo")을 안써줘도됨 @Param("vo")의 역할은 vo를 매개값으로 넘겨주는건데 이미 파라미터타입에서 vo를 넘겨줬기에 필요가없음 오히려 
+	@Param("vo")으로 vo를 또 넘겨주면 에러가남
+ -->
+  	<update id="getUserUpdate" parameterType="userVo">
+  		update user set pwd=#{pwd}, name=#{name}, age=#{age}, gender=#{gender}, address=#{address} where idx = #{idx}
+  	</update>
+  
+  	<insert id="setUserInput" parameterType="userVo">
+  		insert into user values (default, #{mid}, #{pwd}, #{name}, #{age}, #{gender}, #{address});
+  	</insert>
+  	
+	<delete id="setUserDeleteOk">
+		delete from user where idx = #{idx}
+	</delete>  	
+
+</mapper>
+
+
+
+
+

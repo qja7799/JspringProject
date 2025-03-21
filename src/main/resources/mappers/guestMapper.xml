@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.spring.JspringProject.dao.GuestDao"> <!-- 네임스페이스명은 맘대로 지정가능 -->
+	
+	<select id="getGuestList" resultType="com.spring.JspringProject.vo.GuestVo">
+		select * from guest order by idx desc limit #{startIndexNo}, #{pageSize}
+	</select>
+	
+	<select id="getTotRecCnt" resultType="int">
+		select count(*) from guest
+	</select>
+	
+	
+	<!--  -->
+	<insert id="setGuestInput">
+		insert into guest values (default, #{vo.name}, #{vo.content}, #{vo.email}, #{vo.homePage}, #{vo.hostIp}, default)
+	</insert>
+<!-- 	
+	<insert id="setGuestInput" parameterType="com.spring.JspringProject.vo.GuestVo">
+		insert into guest values (default, #{name}, #{content}, #{email}, #{homePage}, #{hostIp}, default)
+	</insert> 
+	이렇게 파라미터타입을 써주면 매개값에 vo.을 안붙여도 되고 이 sql을 호출하는 다오에서도 @Param으로 매개값 안넘겨줘도됨
+	-->
+	
+	<delete id="setGuestDelete">
+		delete from guest where idx = #{idx}
+	</delete>
+</mapper>
+
+
+
+
+

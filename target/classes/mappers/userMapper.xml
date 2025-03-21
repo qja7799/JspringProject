@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="userNS"> <!-- 네임스페이스명은 맘대로 지정가능 -->
+
+  <select id="getUserIdSearch" resultType="userVo">
+    select * from user where mid = #{mid}
+  </select>
+  
+  <!-- ${}는 변수, #{}은 값 이라 보면됨 변수가 들어갈부분을 #{}으로 쓰면 값이라봐서 #{} = #{} 으로하면 값 = 값이 되어버림 -->
+  <select id="getUserSearchPart" parameterType="userVo" resultType="userVo">
+    select * from user where ${part} = #{content} limit 1
+  </select>
+  
+  <select id="getUserList" resultType="userVo">
+    select * from user order by idx desc
+  </select>
+  
+  <select id="getSearchIdx" resultType="userVo">
+    select * from user where idx = #{idx}
+  </select>
+  
+  
+  <!--  -->
+  <insert id="setUserInput" parameterType="userVo">
+    insert into user values (default, #{mid}, #{pwd}, #{name}, #{age}, #{gender}, #{address})
+  </insert>
+  
+  <!--  -->
+  <update id="getUserUpdate" parameterType="userVo">
+  	update user set pwd=#{pwd}, name=#{name}, age=#{age}, gender=#{gender}, address=#{address} where idx = #{idx}
+  </update>
+  
+  <!--  -->
+  <delete id="setUserDeleteOk">
+  	delete from user where idx = #{idx}
+  </delete>
+  
+</mapper>
+
+
+
+
+

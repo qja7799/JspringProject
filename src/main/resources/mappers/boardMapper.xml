@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.spring.JspringProject.dao.BoardDao"> 
+	
+	<select id="getBoardTotRecCnt" resultType="int">
+		select count(*) from board;
+	</select>
+	
+	<select id="getBoardList" resultType="com.spring.JspringProject.vo.BoardVo">
+		select * from board order by idx desc limit #{startIndexNo}, #{pageSize};
+	</select>
+	
+	<select id="getBoardContent" resultType="com.spring.JspringProject.vo.BoardVo">
+		select * from board where idx = #{idx}
+	</select>
+	
+	
+	<insert id="setBoardInputOk"> 
+		insert into board values 
+		(default,#{vo.mid},#{vo.nickName},#{vo.title},#{vo.content},#{vo.hostIp},#{vo.openSw},default,default,default,default); 
+	</insert>
+	
+	
+	<update id="setBoardReadNumPlus">
+		update board set readNum = readNum + 1 where idx = #{idx} 
+	</update>
+	
+	<update id="setBoardUpdate">
+		update board set title=#{vo.title},content=#{vo.content},hostIp=#{vo.hostIp},openSw=#{vo.openSw},wDate=now() where idx=#{vo.idx};
+	</update>
+	
+	<delete id="setBoardDelete">
+		delete from board where idx = #{idx};
+	</delete>
+	
+</mapper>
+
+
+
+
+

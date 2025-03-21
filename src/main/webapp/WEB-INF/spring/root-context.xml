@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:mybatis-spring="http://mybatis.org/schema/mybatis-spring"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://mybatis.org/schema/mybatis-spring http://mybatis.org/schema/mybatis-spring-1.2.xsd
+		http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd">
+	
+	<!-- Root Context: defines shared resources visible to all other web components -->
+	<!-- com.spring.JspringProject.dao 패키지 내의 모든 MyBatis 인터페이스를 찾아서 빈(Bean)으로 등록 -->
+	<mybatis-spring:scan base-package="com.spring.JspringProject.dao"/> 
+
+
+	<!-- 데이터베이스 소스 등록/설정 (db연동을 위한 환경설정) -->	
+	<!-- bean으로 등록시켜놔야 스프링컨테이너에서 맘대로 꺼내쓰기가 가능하기에 -->
+	<!-- DriverManagerDataSource 이거 자체가 세터로 값을 등록할수있게 해놨기에 세터(property)로 등록 -->
+	<bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+		<property name="driverClassName" value="com.mysql.jdbc.Driver" />
+		<property name="url" value="jdbc:mysql://localhost:3306/springproject" />
+		<property name="username" value="root" />
+		<property name="password" value="1234" />
+	</bean>
+	
+	<!-- MyBatis SessionFactory 설정 / 이걸 설정해야 마이바티스 사용가능(필수) -->
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+  <!--  <property name="mapperLocations" value="classpath:mappers/atomMapper.xml" /> -->
+<!--	<property name="mapperLocations" value="classpath:mappers/*Mapper.xml" /> -->
+		<property name="mapperLocations" value="classpath:mappers/**/*Mapper.xml" /><!-- 매퍼스 내부의 폴더안에 있는 xml까지도 읽어옴 -->
+		
+		<!-- 네임값 typeAliasesPackage는 예약어임 변경불가/ 
+		 typeAliasesPackage를 쓰면 긴이름을 가진 패키지명을 다 안써줘도 됨 
+		 해당 패키지 내의 클래스들을 별칭(alias)으로 사용할 수 있도록 설정해서
+		 XML 매퍼에서 패키지명을 생략하고 클래스명만으로 사용 가능-->
+		<property name="typeAliasesPackage" value="com.spring.JspringProject.vo" />
+	</bean>
+	
+	<!-- MyBatis sqlSessionTemplate 설정/ 템플릿쓸거면 설정하고 안쓸거면 딱히 -->
+	<bean id="sqlSessionTemplate" class="org.mybatis.spring.SqlSessionTemplate">
+		<constructor-arg index="0" ref="sqlSessionFactory"></constructor-arg>
+	</bean>
+	
+	<!-- 메일처리를 위한 라이브러리를 bean으로 등록 -->
+	<bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
+		<property name="host" value="smtp.gmail.com" /><!-- host는 예약어 -->
+		<property name="port" value="587" /><!-- 구글메일의 포트번호  -->
+		<property name="username" value="qja2467@gmail.com" /><!-- 내 구글 이메일 -->
+		<property name="password" value="ayuzfnabumftdqam" /><!-- 앱키  -->
+		<property name="javaMailProperties"><!-- javaMailPropertiessms 예약어, 예약어는 변경불가  -->
+			<props>
+				<prop key="mail.transport.protocol">smtp</prop><!-- 전송 프로토콜지정 -->
+				<prop key="mail.smtp.starttls.enable">true</prop><!-- ssl암호화를 활성화시킴(true)/메일 보낼때 암호화안하면 제대로 메일안보내짐 -->
+				<!-- 여기부턴 선택사항/설정 안해도 전송은되는데 하면 좋음 -->
+				<prop key="mail.smtp.ssl.trust">smtp.gmail.com</prop><!-- ssl 프로토콜인증을 smtp.gmail.com에서 받아서 하겠다 라는 의미 -->
+				<prop key="mail.smtp.ssl.protocols">TLSv1.2</prop><!-- ssl 프로토콜의 버전을 지정 -->
+				<prop key="mail.debug">true</prop><!-- 메일 전송시 실행되는 로그들을 보여주게함 -->
+			</props>
+		</property>
+		
+	</bean>
+	
+</beans>
