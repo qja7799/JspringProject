@@ -7,17 +7,42 @@
 	</select>
 	
 	<select id="getBoardList" resultType="com.spring.JspringProject.vo.BoardVo">
-		select * from board order by idx desc limit #{startIndexNo}, #{pageSize};
+		select *, datediff(wDate, now()) as dateDiff from board <if test='search != ""'>where ${search} like concat('%',#{searchString},'%') </if> order by idx desc limit #{startIndexNo}, #{pageSize};
 	</select>
 	
 	<select id="getBoardContent" resultType="com.spring.JspringProject.vo.BoardVo">
 		select * from board where idx = #{idx}
 	</select>
 	
+	<select id="getBoardTotRecCntSearch" resultType="int"> 
+		select count(*) from board where ${search} like concat('%',#{searchString},'%'); 
+	</select>
+	
+	<!-- 이전글 다음글 가져오기 -->
+<!-- <if test='preNext == "pre"'></if>안에 조건식인 '<' 를 넣어야하는데 idx < #{idx}이나 idx lt #{idx}이렇게 쓸수가 없음
+	매퍼안에 조건식을 넣을땐 <![CDATA[조건식..]]> 이렇게 써줘야함 <를 lt로 바꿔서 쓸수도있지만 이건 버전에 따라 적용안될경우도 있음 -->
+	<select id="getPreNextSearch" resultType="com.spring.JspringProject.vo.BoardVo"> 
+		select idx, title from board where 
+		<if test='preNext == "pre"'> <![CDATA[idx < #{idx}]]> </if>
+		<if test='preNext == "next"'> <![CDATA[idx > #{idx}]]> </if>
+		order by idx <if test='preNext == "pre"'> desc </if> limit 1
+	</select>
+	
+	<!-- 특정게시글의 댓글리스트 가져오기 -->
+	<select id="getBoardReply" resultType="com.spring.JspringProject.vo.BoardReplyVo"> 
+		select * from boardReply where boardIdx = #{idx} order by idx;
+	</select>
+	
+	
 	
 	<insert id="setBoardInputOk"> 
 		insert into board values 
 		(default,#{vo.mid},#{vo.nickName},#{vo.title},#{vo.content},#{vo.hostIp},#{vo.openSw},default,default,default,default); 
+	</insert>
+	
+	<insert id="setBoardReplyInput"> <!-- 댓글달기 -->
+		insert into boardReply values 
+		(default,#{vo.boardIdx},#{vo.mid},#{vo.nickName},#{vo.content},#{vo.hostIp},default); 
 	</insert>
 	
 	
@@ -28,6 +53,16 @@
 	<update id="setBoardUpdate">
 		update board set title=#{vo.title},content=#{vo.content},hostIp=#{vo.hostIp},openSw=#{vo.openSw},wDate=now() where idx=#{vo.idx};
 	</update>
+	
+	<update id="setBoardGoodCheck1">
+		update board set good = good + 1 where idx = #{idx}
+	</update>
+	
+	<update id="setBoardGoodCheck2">
+		update board set good = good + #{goodCnt} where idx = #{idx} 
+	</update>
+	
+	
 	
 	<delete id="setBoardDelete">
 		delete from board where idx = #{idx};
