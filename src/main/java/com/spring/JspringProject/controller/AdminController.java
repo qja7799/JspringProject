@@ -2,6 +2,8 @@ package com.spring.JspringProject.controller;
 
 import java.util.List;
 
+import javax.servlet.http.HttpSession;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -14,6 +16,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.spring.JspringProject.service.AdminService;
 import com.spring.JspringProject.service.MemberService;
+import com.spring.JspringProject.vo.ComplaintVo;
 import com.spring.JspringProject.vo.MemberVo;
 
 @Controller
@@ -42,11 +45,29 @@ public class AdminController {
 	}
 	
 	@GetMapping("/member/memberList")
-	public String memberListGet(Model model, 
+	public String memberListGet(Model model, HttpSession session,
+			@RequestParam(name="pag", defaultValue = "1", required = false) int pag,
+			@RequestParam(name="pageSize", defaultValue = "10", required = false) int pageSize,
 			@RequestParam(name="level", defaultValue = "99", required = false) int level
 		) {
-		List<MemberVo> vos = memberService.getMemberList(level);
+		int totRecCnt = adminService.getMemberTotRecCnt(level);
+		int totPage = (totRecCnt % pageSize) == 0 ? (totRecCnt / pageSize) : (totRecCnt / pageSize) + 1;
+		int startIndexNo = (pag - 1) * pageSize;
+		int curScrStartNo = totRecCnt - startIndexNo;
+		
+		int blockSize = 3;
+		int curBlock = (pag - 1) / blockSize;
+		int lastBlock = (totPage - 1) / blockSize;
+		List<MemberVo> vos = memberService.getMemberList(startIndexNo, pageSize, level);
+		
 		model.addAttribute("vos", vos);
+		model.addAttribute("pag", pag);
+		model.addAttribute("pageSize", pageSize);
+		model.addAttribute("totPage", totPage);
+		model.addAttribute("curScrStartNo", curScrStartNo);
+		model.addAttribute("blockSize", blockSize);
+		model.addAttribute("curBlock", curBlock);
+		model.addAttribute("lastBlock", lastBlock);
 		model.addAttribute("level", level);
 		
 		return "admin/member/memberList";
@@ -63,6 +84,21 @@ public class AdminController {
 		return adminService.setMemberLevelChange(level, idx) + "";//반환값이 인트이기에 빈문자열 더해서 문자타입으로 변경
 	}
 	
+	// 선택한 회원 전체적으로 등급 변경하기
+	@ResponseBody
+	@RequestMapping(value = "/member/memberLevelSelectCheck", method = RequestMethod.POST)
+	public String memberLevelSelectCheckPost(String idxSelectArray, int levelSelect) {
+		String[] idxSelectArrays = idxSelectArray.split("/");
+		
+		String str = "0";
+		for(String idx : idxSelectArrays) {
+			//setMemberLevelChange써도 되지만 그건 반환값이 있기때문에 반환값없는 setMemberLevelCheck를 새로 만들어줌
+			adminService.setMemberLevelCheck(Integer.parseInt(idx), levelSelect);
+			str = "1";
+		}
+		return str;
+	}
+	
 	// 개별회원정보 상세보기
 	@RequestMapping(value = "/memberInfor/{idx}", method = RequestMethod.GET)
 	public String memberInforGet(Model model, @PathVariable int idx) {
@@ -71,5 +107,29 @@ public class AdminController {
 		
 		return "admin/member/memberInfor";
 	}
+	
+//	// 신고 리스트 출력
+//	@RequestMapping(value = "/complaint/complaintList", method = RequestMethod.GET)
+//	public String complaintListGet(Model model) {
+//		List<ComplaintVo> vos = adminService.getComplaintList();
+//		model.addAttribute("vos", vos);
+//		
+//		return "admin/complaint/complaintList";
+//	}
 
+	// 신고 리스트 출력
+	@RequestMapping(value = "/complaint/complaintList", method = RequestMethod.GET)
+	public String memberInforGet(Model model) {
+		List<ComplaintVo> vos = adminService.getComplaintList();
+		model.addAttribute("vos", vos);
+		
+		return "admin/complaint/complaintList";
+	}
+	
+	// 신고글 감추기/보이기
+	@ResponseBody
+	@RequestMapping(value = "/complaint/contentChange", method = RequestMethod.POST)
+	public String contentChangePost(int contentIdx, String contentSw) {
+		return adminService.setContentChange(contentIdx, contentSw) + "";
+	}
 }

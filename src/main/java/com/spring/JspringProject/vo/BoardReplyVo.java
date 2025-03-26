@@ -11,4 +11,5 @@ public class BoardReplyVo {
 	private String content;
 	private String hostIp;
 	private String wDate;
+	
 }

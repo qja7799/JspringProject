@@ -353,6 +353,22 @@
         });
     });
     
+    // 업로드 시킬 사진 미리보기
+    function imgCheck(event) {
+    	// 파일이 존재하는지 체크 
+		if(event.files && event.files[0]) {
+			let reader = new FileReader();
+/* 			reader.onload = function(e) {
+				document.getElementById("photoDemo").src = e.target.result;
+			}
+			reader.readAsDataURL(e.files[0]); */
+		//imgCheck에서 this로 받은 변수값(event) 그대로 온로드 함수에 넣어줘야함 위처럼 변수값 다르면안됨
+			reader.onload = function(event) {
+				document.getElementById("photoDemo").src = event.target.result;
+			}
+			reader.readAsDataURL(event.files[0]);
+		}
+	} 
   </script>
   <style type="text/css">
   	
@@ -534,6 +550,8 @@
 		    <th>회원사진</th>
 		    <td>
 		      <input type="file" name="fName" id="file" onchange="imgCheck(this)" class="form-control" />
+		      <!-- 사진 미리보기 -->
+		      <div><img id="photoDemo" width="100px"/></div>
 		    </td>
 		  </tr>
 	      <tr>

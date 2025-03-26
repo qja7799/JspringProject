@@ -2,8 +2,41 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.spring.JspringProject.dao.AdminDao"> <!-- 네임스페이스명은 맘대로 지정가능 -->
 	
+	<select id="getMemberTotRecCnt" resultType="int">
+		select count(*) from member
+		<if test="level != 99"> 
+			where level = #{level}
+		</if>
+	</select>
+	
+  <select id="getComplaintList" resultType="com.spring.JspringProject.vo.ComplaintVo">
+  	select date_format(cpDate,'%Y-%m-%d %H:%i') as cpDate, b.title as title, b.nickName as nickName,b.complaint as complaint,c.* from complaint c, board b, pds p where c.boardIdx=b.idx and c.pdsIdx=p.idx order by c.idx desc;
+  </select>
+  
+	<insert id="setBoardComplaintInput">
+    	insert into complaint values (default,#{vo.part},#{vo.boardIdx},default,#{vo.cpMid},#{vo.cpContent},default);
+    </insert>
+    
 	<update id="setMemberLevelChange">
 		update member set level = #{level} where idx = #{idx}
+	</update>
+	
+	
+	<update id="setMemberLevelCheck"> 
+		update member set level = #{level} where idx = #{idx}; 
+	</update>
+	
+	<update id="setBoardTableComplaintOk">
+		update board set complaint = 'OK' where idx = #{partIdx}
+	</update>
+	
+	<update id="setContentChange"> 
+		<if test='contentSw == "H"'>
+			update board set complaint = 'HI' where idx = #{contentIdx}; 
+		</if>
+		<if test='contentSw == "S"'>
+			update board set complaint = 'NO' where idx = #{contentIdx}; 
+		</if>
 	</update>
 	
 </mapper>

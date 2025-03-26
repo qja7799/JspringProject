@@ -9,21 +9,30 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>memberList.jsp</title>
   <jsp:include page="/WEB-INF/views/include/bs5.jsp" />
-  <script type="text/javascript">
-	  // 닉네임 클릭시 모달을 통해서 회원 '닉네임/아이디/사진' 보여주기
-	  function imgInfor(nickName, mid, photo) {
-	  	$("#myModal1 .modal-header .nickName").html(nickName);
-	  	$("#myModal1 .modal-body .mid").html(mid);
-	  	$("#myModal1 .modal-body .imgSrc").attr("src","${ctp}/resources/data/member/"+photo)
-	  }
+  <script>
+    'use strict';
+    
+    // 닉네임 클릭시 모달을 통해서 회원 '닉네임/아이디/사진' 보여주기
+    function imgInfor(nickName, mid, photo) {
+    	$("#myModal1 .modal-header .nickName").html(nickName);
+    	$("#myModal1 .modal-body .mid").html(mid);
+    	$("#myModal1 .modal-body .imgSrc").attr("src","${ctp}/resources/data/member/"+photo)
+    }
   </script>
+  <style>
+    a {text-decoration: none}
+    a:hover {
+      text-decoration: underline;
+      color: orange;
+    }
+  </style>
 </head>
 <body>
 <jsp:include page="/WEB-INF/views/include/nav.jsp" />
 <jsp:include page="/WEB-INF/views/include/slide2.jsp" />
 <p><br/></p>
 <div class="container">
-  <h2>전체 회원 리스트</h2>
+  <h2 class="text-center mb-3">전체 회원 리스트</h2>
   <div class="row">
     
   </div>
@@ -54,8 +63,20 @@
     </table>
   </form>
   
-<!-- 페이징처리  -->
-  
+	<!-- 블록페이지 시작(1블록의 크기를 3개(3Page)로 한다. -->
+	<div class="text-center">
+	  <ul class="pagination justify-content-center">
+	    <c:if test="${pag > 1}"><li class="page-item"><a class="page-link text-secondary" href="memberList?pag=1">첫페이지</a></li></c:if>
+	  	<c:if test="${curBlock > 0}"><li class="page-item"><a class="page-link text-secondary" href="memberList?pag=${(curBlock-1)*blockSize+1}">이전블록</a></li></c:if>
+	  	<c:forEach var="i" begin="${(curBlock*blockSize)+1}" end="${(curBlock*blockSize)+blockSize}" varStatus="st">
+		    <c:if test="${i <= totPage && i == pag}"><li class="page-item active"><a class="page-link bg-secondary border-secondary" href="memberList?pag=${i}">${i}</a></li></c:if>
+		    <c:if test="${i <= totPage && i != pag}"><li class="page-item"><a class="page-link text-secondary" href="memberList?pag=${i}">${i}</a></li></c:if>
+	  	</c:forEach>
+	  	<c:if test="${curBlock < lastBlock}"><li class="page-item"><a class="page-link text-secondary" href="memberList?pag=${(curBlock+1)*blockSize+1}">다음블록</a></li></c:if>
+	  	<c:if test="${pag < totPage}"><li class="page-item"><a class="page-link text-secondary" href="memberList?pag=${totPage}">마지막페이지</a></li></c:if>
+	  </ul>
+	</div>
+	<!-- 블록페이지 끝 --> 
   
 </div>
 

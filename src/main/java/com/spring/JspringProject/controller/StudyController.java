@@ -1,5 +1,6 @@
 package com.spring.JspringProject.controller;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 
@@ -101,8 +102,11 @@ public class StudyController {
 	
 	//파일업로드 폼보기
 	@RequestMapping(value="/fileUpload/fileUpload", method = RequestMethod.GET)
-	public String fileUploadGet(HttpServletRequest request) {
-		//String realPath = request.getSession().getServletContext().getRealPath("/resources/data/fileUpload");
+	public String fileUploadGet(HttpServletRequest request, Model model) {
+		String realPath = request.getSession().getServletContext().getRealPath("/resources/data/fileUpload");
+		String[] files = new File(realPath).list();
+		
+		model.addAttribute("files", files);
 		
 		return "study/fileUpload/fileUpload";
 	}
@@ -114,6 +118,44 @@ public class StudyController {
 		
 		if(res != 0) return "redirect:/message/fileUploadOk";
 		return "redirect:/message/fileUploadNo";
+	}
+	
+	//선택된 파일 1개 삭제처리
+	@ResponseBody
+	@RequestMapping(value="/fileUpload/fileDelete", method = RequestMethod.POST)
+	public String fileDeletePost(String file, HttpServletRequest request) {
+		String realPath = request.getSession().getServletContext().getRealPath("/resources/data/fileUpload/");//특정 1개만 삭제할거라 fileUpload뒤에 /붙임
+		
+		String res = "0";
+		File fName = new File(realPath + file);
+		
+		if(fName.exists()) {
+			fName.delete();
+			res = "1";
+		}
+		
+		return res;
+	}
+	
+	//모든파일 삭제처리
+	@ResponseBody
+	@RequestMapping(value="/fileUpload/fileDeleteAll", method = RequestMethod.POST)
+	public String fileDeleteAllPost(HttpServletRequest request) {
+		String realPath = request.getSession().getServletContext().getRealPath("/resources/data/fileUpload/");
+		String res = "0";
+		File folder = new File(realPath);
+		if(!folder.exists()) {
+			return res;
+		}
+		File[] files = folder.listFiles();
+		if(files.length != 0) {
+			for(File fils : files) {
+				fils.delete();			
+			}
+			res = "1";
+		}
+		
+		return res;
 	}
 	
 	// 메일 연습폼 보기
@@ -170,14 +212,16 @@ public class StudyController {
 	// 모달 연습 겟
 	@RequestMapping(value = "/modal/modalForm", method = RequestMethod.GET)
 	public String modalFormGet(Model model) {
-		List<MemberVo> vos = memberService.getMemberList(99);//전체자료 가져오기
-		MemberVo vo = memberService.getMemberIdCheck("qwe123123");
 		model.addAttribute("name", "홍길동");
 		model.addAttribute("age", "22");
 		model.addAttribute("address", "서울");
 		
+		// 관리자의 정보를 front에 modal로 출력하시오.
+		MemberVo vo = memberService.getMemberIdCheck("admin");
 		model.addAttribute("vo", vo);
+		System.out.println("vo : " + vo);
 		
+		List<MemberVo> vos = memberService.getMemberList(0, 1000, 99);	// level 99는 전체자료 조회(0번 인덱스부터 1000건 조회)
 		model.addAttribute("vos", vos);
 		
 		return "study/modal/modalForm";

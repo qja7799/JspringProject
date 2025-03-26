@@ -14,15 +14,15 @@
   	select * from member where idx = #{idx}
   </select>
   
-  
   <select id="getMemberList" resultType="com.spring.JspringProject.vo.MemberVo">
-  	<if test="level != 99">
-  		select *, datediff(now(), startDate) as deleteDiff from member where level = #{level} order by idx desc; 
-  	</if>
-  	<if test="level == 99">
-  		select *, datediff(now(), startDate) as deleteDiff from member order by idx desc; 
-  	</if>
+	<if test="level != 99"> 
+		select *,datediff(now(), startDate) as deleteDiff from member where level=#{level} order by idx desc limit #{startIndexNo},#{pageSize}; 
+	</if>
+	<if test="level == 99"> 
+		select *,datediff(now(), startDate) as deleteDiff from member order by idx desc limit #{startIndexNo},#{pageSize}; 
+	</if>
   </select>
+
 
 	<select id="getGesigulcount" resultType="int">
 		SELECT COUNT(g.name) AS post_count 

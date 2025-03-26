@@ -29,6 +29,7 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.spring.JspringProject.service.AdminService;
 import com.spring.JspringProject.service.MemberService;
 import com.spring.JspringProject.vo.MailVo;
 import com.spring.JspringProject.vo.MemberVo;
@@ -42,6 +43,9 @@ public class MemberController {
 	
 	@Autowired
 	JavaMailSender mailSender;
+	
+	@Autowired
+	AdminService adminService;
 	
 	@Autowired
 	BCryptPasswordEncoder passwordEncoder; 
@@ -351,15 +355,35 @@ public class MemberController {
 	
 	
 	//멤버리스트
-	@GetMapping("/memberList")
-	public String memberListGet(Model model, 
-			@RequestParam(name="level", defaultValue = "99", required = false) int level
-		) {
-		List<MemberVo> vos = memberService.getMemberList(level);
-		model.addAttribute("vos", vos);
-		
-		return "member/memberList";
-	}
+	// 전체 회원 보기
+		@GetMapping("/memberList")
+		public String memberListGet(Model model, HttpSession session,
+				@RequestParam(name="pag", defaultValue = "1", required = false) int pag,
+				@RequestParam(name="pageSize", defaultValue = "5", required = false) int pageSize,
+				@RequestParam(name="level", defaultValue = "99", required = false) int level
+			) {
+			int totRecCnt = adminService.getMemberTotRecCnt(level);
+			int totPage = (totRecCnt % pageSize) == 0 ? (totRecCnt / pageSize) : (totRecCnt / pageSize) + 1;
+			int startIndexNo = (pag - 1) * pageSize;
+			int curScrStartNo = totRecCnt - startIndexNo;
+			
+			int blockSize = 3;
+			int curBlock = (pag - 1) / blockSize;
+			int lastBlock = (totPage - 1) / blockSize;
+			List<MemberVo> vos = memberService.getMemberList(startIndexNo, pageSize, level);
+			
+			model.addAttribute("vos", vos);
+			model.addAttribute("pag", pag);
+			model.addAttribute("pageSize", pageSize);
+			model.addAttribute("totPage", totPage);
+			model.addAttribute("curScrStartNo", curScrStartNo);
+			model.addAttribute("blockSize", blockSize);
+			model.addAttribute("curBlock", curBlock);
+			model.addAttribute("lastBlock", lastBlock);
+			model.addAttribute("level", level);
+			
+			return "member/memberList";
+		}
 	
 	//비밀번호 변경처리
 	@PostMapping("/pwdChange")

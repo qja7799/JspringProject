@@ -34,7 +34,7 @@
   <table class="table table-borderless m-0 p-0">
     <tr>
       <td><a href="boardInput" class="btn btn-success btn-sm">글쓰기</a></td>
-      <c:if test="${empty pageVo.search}">
+      <c:if test="${empty pageVo.searchStr}">
 	      <td class="text-end">
 	        <select name="pageSize" id="pageSize" onchange="pageSizeCheck()">
 	          <option ${pageVo.pageSize==5  ? 'selected' : ''}>5</option>
@@ -67,10 +67,16 @@
 	      <td>${curScrStartNo}</td>
 	      <td class="text-start">
 	        <a href="boardContent?pag=${pageVo.pag}&pageSize=${pageVo.pageSize}&idx=${vo.idx}&search=${pageVo.search}&searchString=${pageVo.searchString}">${vo.title}</a>
-	        <c:if test="${vo.dateDiff == 0}"><img src="${ctp}/images/new.gif"/></c:if>
+	        <c:if test="${vo.hourDiff <= 24}"><img src="${ctp}/images/new.gif"/></c:if>
+	        <c:if test="${vo.replyCnt != 0}">(${vo.replyCnt})</c:if><!-- 댓글수 출력 -->
 	      </td>
 	      <td>${vo.nickName}</td>
-	      <td>${fn:substring(vo.WDate,0,10)}</td>
+	      <td>
+	      	<c:if test="${vo.hourDiff <= 24}">
+	        	${vo.dateDiff == 0 ? fn:substring(vo.WDate,11,19) : fn:substring(vo.WDate,0,19)}
+	        </c:if>
+	        <c:if test="${vo.hourDiff > 24}">${fn:substring(vo.WDate,0,10)}</c:if>
+	      </td>
 	      <td>${vo.readNum}(${vo.good})</td>
 	    </tr>
 	    <c:set var="curScrStartNo" value="${curScrStartNo - 1}"/>
@@ -95,7 +101,7 @@
 	<br/>
 	<!-- 검색기 시작 -->
 	<div class="text-center">
-	  <!-- <form name="searchForm" method="post" action="boardSearh"> -->
+	  <!-- <form name="searchForm" method="post" action="boardSearhList"> -->
 	  <form name="searchForm" method="get">
 	  	<b>검색 : </b>
 	  	<select name="search" id="search">

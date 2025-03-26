@@ -16,7 +16,7 @@ public interface MemberDao {
 
 	void setMemberInforUpdate(@Param("mid") String mid, @Param("point") int point);
 
-	List<MemberVo> getMemberList(int level);
+	List<MemberVo> getMemberList(@Param("startIndexNo") int startIndexNo, @Param("pageSize") int pageSize, @Param("level") int level);
 
 	void setMemberDeleteCheck(String mid);
 

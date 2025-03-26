@@ -15,9 +15,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.spring.JspringProject.common.Pagination;
+import com.spring.JspringProject.service.AdminService;
 import com.spring.JspringProject.service.BoardService;
 import com.spring.JspringProject.vo.BoardReplyVo;
 import com.spring.JspringProject.vo.BoardVo;
+import com.spring.JspringProject.vo.ComplaintVo;
 import com.spring.JspringProject.vo.GuestVo;
 import com.spring.JspringProject.vo.PageVo;
 
@@ -30,6 +32,9 @@ public class BoardController {
 	
 	@Autowired
 	Pagination pagination;
+	
+	@Autowired
+	AdminService adminService;
 	
 	/*
 	// 게시판메인 
@@ -257,7 +262,7 @@ public class BoardController {
 		//좋아요 중복처리(조회수 중복처리와 같은로직사용)[나중에 조회수 중복처리Set이랑 합쳐볼까]
 	    // 세션에서 "goodNum" 가져오기 (없으면 null이 저장될뿐 에러는 안남)
 		//근데 좋아요 중복처리를 세션으로하면 안되지않나? 세션끊기면 다시 좋아요 누를수있잖아
-		//db로 처리시켜야할거같은데(<= ㅇㅇ맞음 강사가 걍 개대충해준거)
+		//db로 처리시켜야할거같은데(<= ㅇㅇ맞음, 강사는 끝까지 세션으로 하는방식쓰던데 그러면안됨, 무조건 db써야함)
 		//지금보니 이렇게 세션으로 처리하면 좋아요 해제도 못함/ 레전드 ㅋㅋ
 	    Set<Integer> goodNum = (Set<Integer>) session.getAttribute("goodNum");
 
@@ -286,10 +291,41 @@ public class BoardController {
 		return boardService.setBoardGoodCheck2(idx, goodCnt) + "";
 	}
 	
-	//댓글 달기
+	//댓글 입력처리
 	@ResponseBody
 	@RequestMapping(value = "/boardReplyInput", method = RequestMethod.POST)
 	public String boardReplyInputPost(BoardReplyVo vo) {
 		return boardService.setBoardReplyInput(vo) + "";
 	}
+	
+	//댓글 삭제처리
+	@ResponseBody
+	@RequestMapping(value = "/boardReplyDelete", method = RequestMethod.POST)
+	public String boardReplyDeletePost(int idx) {
+		return boardService.setBoardReplyDelete(idx) + "";
+	}
+	
+	//댓글 수정처리
+	@ResponseBody
+	@RequestMapping(value = "/boardReplyUpdateCheckOk", method = RequestMethod.POST)
+	// 뷰에있는 에이젝스에서 매개값 넘겨줄때 idx,content,hostIp를 넘겨줘서 매개값을 하나하나 받을수도있지만 vo로 묶어서 받을수도있음
+	public String boardReplyUpdateCheckOkPost(BoardReplyVo vo) {
+		return boardService.setBoardReplyUpdateCheckOk(vo) + "";
+	}
+	
+	// 신고글 처리...
+	@ResponseBody
+	@RequestMapping(value = "/boardComplaintInput", method = RequestMethod.POST)
+	public String boardComplaintInputPost(ComplaintVo vo) {
+		//신고테이블에 인설트, 보드테이블에 업데이트를 해줘야하는데 
+		//Mysql에서는 다른종류의 쿼리작업여러개를 한번에 실행하는걸 지원하지만 마이바티스에서는 같은종류의 쿼리만 여러개한번에 실행을 지원하기에
+		//(예:인설트+인설트=가능, 인설트+딜리트=불가능)
+		//따라서 즉, 두번 호출해서 두번의 작업을 각각 처리헤줘야함
+		System.out.println("vo : " + vo);
+		int res = 0;
+		res = adminService.setBoardComplaintInput(vo);
+		if(res != 0) adminService.setBoardTableComplaintOk(vo.getBoardIdx());
+		return res + "";
+	}
+	
 }

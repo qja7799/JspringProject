@@ -65,8 +65,8 @@ public class MemberServiceImpl implements MemberService {
 	}
 
 	@Override
-	public List<MemberVo> getMemberList(int level) {
-		return memberDao.getMemberList(level);
+	public List<MemberVo> getMemberList(int startIndexNo, int pageSize, int level) {
+		return memberDao.getMemberList(startIndexNo, pageSize ,level);
 	}
 
 	@Override

@@ -5,9 +5,19 @@
 	<select id="getBoardTotRecCnt" resultType="int">
 		select count(*) from board;
 	</select>
+<!-- 	
+	<select id="getBoardList" resultType="com.spring.JspringProject.vo.BoardVo">
+		select *, datediff(wDate, now()) as dateDiff from board 
+		<if test='search != ""'>where ${search} like concat('%',#{searchString},'%') </if> 
+		order by idx desc limit #{startIndexNo}, #{pageSize};
+	</select> -->
 	
 	<select id="getBoardList" resultType="com.spring.JspringProject.vo.BoardVo">
-		select *, datediff(wDate, now()) as dateDiff from board <if test='search != ""'>where ${search} like concat('%',#{searchString},'%') </if> order by idx desc limit #{startIndexNo}, #{pageSize};
+		select *,datediff(wDate, now()) as dateDiff, <!-- 날짜차이 계산 -->
+		timestampdiff(hour, wDate, now()) as hourDiff, <!-- 시간차이 계산 -->
+		(select count(idx) from boardReply where boardIdx=b.idx) as replyCnt from board b <!-- 댓글개수 조회한걸 replyCnt변수에 담음 (이렇게 쿼리를 짜면 다오에서 변수 안받아와도됨) -->
+		<if test='search !=""'>where ${search} like concat('%',#{searchString},'%')</if><!-- 검색처리 -->
+		order by idx desc limit #{startIndexNo},#{pageSize};
 	</select>
 	
 	<select id="getBoardContent" resultType="com.spring.JspringProject.vo.BoardVo">
@@ -17,6 +27,7 @@
 	<select id="getBoardTotRecCntSearch" resultType="int"> 
 		select count(*) from board where ${search} like concat('%',#{searchString},'%'); 
 	</select>
+	
 	
 	<!-- 이전글 다음글 가져오기 -->
 <!-- <if test='preNext == "pre"'></if>안에 조건식인 '<' 를 넣어야하는데 idx < #{idx}이나 idx lt #{idx}이렇게 쓸수가 없음
@@ -62,10 +73,18 @@
 		update board set good = good + #{goodCnt} where idx = #{idx} 
 	</update>
 	
+	<update id="setBoardReplyUpdateCheckOk"><!-- 댓글수정 -->
+		update boardReply set content = #{vo.content}, hostIp = #{vo.hostIp} where idx = #{vo.idx} 
+	</update>
+	
 	
 	
 	<delete id="setBoardDelete">
 		delete from board where idx = #{idx};
+	</delete>
+	
+	<delete id="setBoardReplyDelete">
+		delete from boardReply where idx = #{idx};
 	</delete>
 	
 </mapper>

@@ -24,4 +24,6 @@ public class BoardVo {
 	
 	private int dateDiff;//게시글의 일자 경과유무 체크
 	private int hourDiff;//게시글의 24시간 경과유무 체크
+	
+	private int replyCnt;// 댓글의 개수를 저장하는 변수
 }

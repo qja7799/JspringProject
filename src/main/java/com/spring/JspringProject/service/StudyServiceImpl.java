@@ -145,7 +145,7 @@ public class StudyServiceImpl implements StudyService {
 		//파일이름 중복처리(UUID)후 서버에 저장처리
 		UUID uid = UUID.randomUUID();
 		String Original_FileName = fName.getOriginalFilename(); // 업로드한 파일명
-		String sFileName = mid + uid.toString().substring(0,8) + "_" + Original_FileName;// 업로드한 파일명이 중복되지않게처리
+		String sFileName = mid + "_" + uid.toString().substring(0,8) + "_" + Original_FileName;// 업로드한 파일명이 중복되지않게처리
 		
 		try {
 			writeFile(fName, sFileName);
@@ -156,6 +156,7 @@ public class StudyServiceImpl implements StudyService {
 		return res;
 	}
 
+	//전송된 파일을 서버로 저장처리
 	//io,스레드,서버,네트워크와 관계된건 다 무조건 예외처리 해줘야함
 	private void writeFile(MultipartFile fName, String sFileName) throws IOException {
 		//request.getSession().getServletContext().getRealPath("/resources/data/fileUpload")

@@ -18,7 +18,7 @@ public interface MemberService {
 
 	void setMemberInforUpdate(String mid, int point);
 
-	List<MemberVo> getMemberList(int level);
+	List<MemberVo> getMemberList(int startIndexNo, int pageSize, int level);
 
 	void setMemberDeleteCheck(String mid);
 
