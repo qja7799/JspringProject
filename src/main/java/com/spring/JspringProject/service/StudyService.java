@@ -3,6 +3,7 @@ package com.spring.JspringProject.service;
 import java.util.List;
 
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 public interface StudyService {
 
@@ -11,5 +12,7 @@ public interface StudyService {
 	List<String> getCityVosArray(String dodo);
 
 	int fileUpload(MultipartFile fName, String mid);
+
+	int multiFileUpload(MultipartHttpServletRequest mFile);
 
 }

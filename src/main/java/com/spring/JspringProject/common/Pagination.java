@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.spring.JspringProject.dao.BoardDao;
+import com.spring.JspringProject.dao.PdsDao;
 import com.spring.JspringProject.vo.PageVo;
 
 @Service
@@ -11,6 +12,9 @@ public class Pagination {
 	
 	@Autowired
 	BoardDao boardDao;
+	
+	@Autowired
+	PdsDao pdsDao;
 
 	public PageVo getTotRecCnt(int pag, int pageSize, String section, String search, String searchString) {
 		PageVo vo = new PageVo();
@@ -26,21 +30,23 @@ public class Pagination {
 		
 		//게시판종류가 보드게시판일경우
 		if(section.equals("board")) {
-			//검색주제가 빈값이라면 전체검색개수를 totRecCnt에 저장
+			//검색필드가 빈값이라면 전체검색개수를 totRecCnt에 저장
 			if(search.equals("")) totRecCnt = boardDao.getBoardTotRecCnt();
 			else {
-				//검색주제가 빈값이 아니라면 전체검색개수를 totRecCnt에 저장
+				//검색필드가 빈값이 아니라면 검색필드와 검색어를 받아 검색개수를 totRecCnt에 저장
 				totRecCnt = boardDao.getBoardTotRecCntSearch(search, searchString);
 			}
 		}//게시판종류가 자료실일경우
 		else if(section.equals("pds")) {
-			
+			totRecCnt = pdsDao.getPdsTotRecCnt(search);
 		}
 		
-		//검색주제가 존재한다면 검색어로 검색한 결과의 개수를 페이지사이즈(한페이지에 보여줄개수)에 넣고
+		//검색어가 존재한다면 검색어로 검색한 결과의 개수를 페이지사이즈(한페이지에 보여줄개수)에 넣고
 		//searchStr에 검색주제 한글로 번역한걸 넣음
-		if(!search.equals("")) {
+		//그냥 강사가 야매식으로 누더기골렘마냥 만들어서 어떻게든 꾸역꾸역 이 프로젝트에서 굴러만가는수준임 이 페이지네비게이션은 다른곳에서 쓰려면 뜯어고칠데가 한두군데가아님
+		if(!searchString.equals("")) {
 			//pageSize = totRecCnt;
+			//totRecCnt(검색결과로 나온글개수)
 			if(totRecCnt != 0) pageSize = totRecCnt; // 이걸로 검색결과가 있을때만 페이지사이즈 주도록 설정(이렇게 써줌으로써 검색결과 없을때 에러안남)
 			if(search.equals("title")) searchStr = "글제목";
 			else if(search.equals("nickName")) searchStr = "닉네임";

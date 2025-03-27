@@ -241,7 +241,22 @@ public class MessageController {
 			model.addAttribute("message", "게시글 수정 실패~~");
 			model.addAttribute("url", "board/boardContent?idx="+idx+"&pag="+pag+"&pageSize="+pageSize+"&search="+search+"&searchString="+searchString);
 		}
-
+		else if(msgFlag.equals("multiFileUploadOk")) {
+			model.addAttribute("message", "멀티파일 업로드 성공!!!");
+			model.addAttribute("url", "study/fileUpload/multiFile");
+		}
+		else if(msgFlag.equals("multiFileUploadNo")) {
+			model.addAttribute("message", "멀티파일 업로드 실패~~");
+			model.addAttribute("url", "study/fileUpload/multiFile");
+		}		
+		else if(msgFlag.equals("pdsInputOk")) {
+			model.addAttribute("message", "자료실에 자료가 업로드 되었습니다.");
+			model.addAttribute("url", "pds/pdsList");
+		}
+		else if(msgFlag.equals("pdsInputNo")) {
+			model.addAttribute("message", "자료실에 자료가 업로드 실패~~");
+			model.addAttribute("url", "pds/pdsInput");
+		}
 		
 		return "include/message";
 	}

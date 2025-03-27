@@ -22,4 +22,8 @@ public interface AdminDao {
 
 	int setContentChange(@Param("contentIdx") int contentIdx, @Param("contentSw") String contentSw);
 
+	int setComplaintDelete(@Param("contentIdx") int contentIdx, @Param("contentPart") String contentPart);
+
+	int setContentDelete(@Param("contentIdx") int contentIdx, @Param("contentPart") String contentPart);
+
 }

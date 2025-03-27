@@ -1,6 +1,7 @@
 package com.spring.JspringProject.controller;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import com.spring.JspringProject.service.MemberService;
 import com.spring.JspringProject.service.StudyService;
@@ -100,18 +102,18 @@ public class StudyController {
 		return studyService.getCityVosArray(dodo);
 	}
 	
-	//파일업로드 폼보기
+	//싱글 파일업로드 폼보기
 	@RequestMapping(value="/fileUpload/fileUpload", method = RequestMethod.GET)
 	public String fileUploadGet(HttpServletRequest request, Model model) {
 		String realPath = request.getSession().getServletContext().getRealPath("/resources/data/fileUpload");
-		String[] files = new File(realPath).list();
-		
-		model.addAttribute("files", files);
-		
+		String[] files = new File(realPath).list();//파일명들이 담긴 리스트
+        
+        model.addAttribute("files", files);//파일명 리스트
+	
 		return "study/fileUpload/fileUpload";
 	}
 	
-	//파일업로드 처리
+	//싱글 파일업로드 처리
 	@RequestMapping(value="/fileUpload/fileUpload", method = RequestMethod.POST)
 	public String fileUploadPost(MultipartFile fName, String mid) {
 		int res = studyService.fileUpload(fName, mid);
@@ -228,5 +230,19 @@ public class StudyController {
 	}
 	
 	
+	//멀티파일 업로드 폼보기
+	@RequestMapping(value="/fileUpload/multiFile", method = RequestMethod.GET)
+	public String multiFileGet() {
+		return "study/fileUpload/multiFile";
+	}
+	
+	//멀티파일 업로드 처리
+	@RequestMapping(value="/fileUpload/multiFile", method = RequestMethod.POST)
+	public String multiFilePost(MultipartHttpServletRequest mFile) {
+		int res = studyService.multiFileUpload(mFile);
+		
+		if(res != 0) return "redirect:/message/multiFileUploadOk";
+		return "redirect:/message/multiFileUploadNo";
+	}
 	
 }

@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -42,6 +44,13 @@ public class ProjectProvide {
 		//file.exists()는 경로에 파일이 존재하는지 검사
 		//파일이 있다면 true반환되어서 file.delete()로 지운다
 		if(file.exists()) file.delete();
+	}
+
+	//파일명 중복방지를 위한 처리
+	public String saveFileName(String oFileName) {
+		Date date = new Date();
+		SimpleDateFormat sdf = new SimpleDateFormat("yyMMddHHmmss");
+		return sdf.format(date) + "_" + oFileName;
 	}
 
 	

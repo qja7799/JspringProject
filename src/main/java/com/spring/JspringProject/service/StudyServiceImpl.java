@@ -14,15 +14,23 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
 
+import com.spring.JspringProject.common.ProjectProvide;
 import com.spring.JspringProject.dao.StudyDao;
 
 @Service
 public class StudyServiceImpl implements StudyService {
 
+	//db에 연결안할거라 dao에 연결안할거니 접근제한자 private로 설정
+	//굳이 private로 설정안해줘도 되지만 어차피 dao안쓸거라 dao에서 StudyServiceImpl로
+	//접근할일이 없으니 굳이 다른곳에서의 접근을 허용해줄 필요가없음, 캡슐화(보안)를 유지하기위해 private로 설정하는게남
 	@Autowired
 	private StudyDao studyDao;
 
+	@Autowired
+	private ProjectProvide projectProvide;
+	
 	@Override
 	public String[] getCityStringArray(String dodo) {
 		String[] strArray = new String[100];
@@ -179,9 +187,48 @@ public class StudyServiceImpl implements StudyService {
 		
 		
 	}
+	
+	@Override
+	public int multiFileUpload(MultipartHttpServletRequest mFile) { // 다중 파일 업로드를 처리하는 메서드
+	    int res = 0; // 기본적으로 업로드 실패(0)로 설정
+	    
+	    try {
+	        List<MultipartFile> fileList = mFile.getFiles("fName"); // 업로드된 파일 리스트를 가져옴
+	        //mFile.getFiles("fName")을 호출하면, "fName"이라는 name 속성을 가진 파일들을 List<MultipartFile> 형태로 가져옴, 
+	        //List<MultipartFile> fileList  <= 이게 없어도 mFile.getFiles("fName") 이것만으로 List<MultipartFile> 형태로 가져온다는뜻
+	        //fName"은 클라이언트(HTML 폼)에서 업로드된 파일 input의 name 속성 값을 의미합니다
+	        //jsp에서 <input type="file" name="fName">로 사용자가 파일을 업로드하면, 파일 데이터가 "fName"이라는 키 값으로 서버로 전송됩니다
+	        //"fName"은 HTML의 <input type="file" name="fName">과 연결되는 값이며, 이를 통해 서버에서 해당 파일 데이터를 가져올 수 있습니다.
+	        //지금 강사는 sql테이블에서 파일이름을 담을 열이름을 똑같이 fName으로 줬는데 키값 fName과 겹칠경우 에러가 생길수있기때문에 둘이 겹치는 이름을 사용하면안됨!!
+	        String oFileNames = ""; // 원본 파일명을 저장할 문자열 변수
+	        String sFileNames = ""; // 서버에 저장될 파일명을 저장할 문자열 변수
+	        int fileSizes = 0; // 총 파일 크기를 저장할 변수
+	        
+	        for (MultipartFile file : fileList) { // 업로드된 파일 리스트를 반복하면서 각각 처리
+	            String oFileName = file.getOriginalFilename(); // 클라이언트가 업로드한 원본 파일명 가져오기
+	            String sFileName = projectProvide.saveFileName(oFileName); // 서버에 저장될 파일명 생성 (중복 방지 목적)
+	            projectProvide.writeFile(file, sFileName, "fileUpload"); // (업로드된 파일, 저장될 파일명, 저장 경로) → 파일을 서버에 저장
 
-	
-	
-	
+	            oFileNames += oFileName + "/"; // 원본 파일명을 '/'로 구분하여 저장
+	            sFileNames += sFileName + "/"; // 저장된 파일명을 '/'로 구분하여 저장
+	            fileSizes += file.getSize(); // 파일 크기를 누적하여 총 크기 계산
+	        }
+	        
+	        //마지막 /를 제거하는 것은 문자열 데이터의 정합성을 유지하고, 이후의 처리(파싱, 저장 등)를 쉽게 하기 위해서임 / 안해줘도 당장에 문제는없지만 길게본다면 해주는게좋음
+	        oFileNames = oFileNames.substring(0, oFileNames.length() - 1); // 마지막 '/' 제거
+	        sFileNames = sFileNames.substring(0, sFileNames.length() - 1); // 마지막 '/' 제거
+	        
+	        System.out.println("원본파일 : " + oFileNames); // 업로드된 파일들의 원본 파일명 출력
+	        System.out.println("서버에저장되는파일 : " + sFileNames); // 서버에 저장된 파일명 출력
+	        System.out.println("총사이즈 : " + fileSizes); // 총 파일 크기 출력
+	        
+	        res = 1; // 파일 업로드가 성공적으로 완료되면 1로 설정
+	    } catch (IOException e) { // 파일 저장 과정에서 입출력 예외 발생 가능성 처리
+	        e.printStackTrace(); // 예외 발생 시 콘솔에 오류 메시지 출력
+	    }
+	    
+	    return res; // 파일 업로드 성공 여부 반환 (1 = 성공, 0 = 실패)
+	}
+
 	
 }

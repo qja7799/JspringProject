@@ -10,7 +10,15 @@
 	</select>
 	
   <select id="getComplaintList" resultType="com.spring.JspringProject.vo.ComplaintVo">
-  	select date_format(cpDate,'%Y-%m-%d %H:%i') as cpDate, b.title as title, b.nickName as nickName,b.complaint as complaint,c.* from complaint c, board b, pds p where c.boardIdx=b.idx and c.pdsIdx=p.idx order by c.idx desc;
+		select date_format(cpDate,'%Y-%m-%d %H:%i') as cpDate, 
+		b.title as title, 
+		b.nickName as nickName,
+		b.complaint as complaint,
+		c.* from complaint c, 
+		board b, pds p 
+		where c.boardIdx=b.idx and c.pdsIdx=p.idx 
+		order by c.idx desc;
+  
   </select>
   
 	<insert id="setBoardComplaintInput">
@@ -38,6 +46,25 @@
 			update board set complaint = 'NO' where idx = #{contentIdx}; 
 		</if>
 	</update>
+	
+	<delete id="setContentDelete">
+	    <if test='contentPart == "board"'>
+	        delete from board where idx = #{contentIdx}
+	    </if>
+	    <if test='contentPart == "pds"'>
+	        delete from pds where idx = #{contentIdx}
+	    </if>
+	</delete>
+	
+	<delete id="setComplaintDelete">
+	    <if test='contentPart == "board"'>
+	        delete from complaint where boardIdx = #{contentIdx};
+	    </if>
+	    <if test='contentPart == "pds"'>
+	        delete from complaint where pdsIdx = #{contentIdx};
+	    </if>
+	</delete>
+	
 	
 </mapper>
 

@@ -122,14 +122,38 @@ public class AdminController {
 	public String memberInforGet(Model model) {
 		List<ComplaintVo> vos = adminService.getComplaintList();
 		model.addAttribute("vos", vos);
-		
 		return "admin/complaint/complaintList";
 	}
 	
+//    // 신고글 삭제하기
+//    @ResponseBody
+//    @RequestMapping(value = ("/complaint/contentDelete"), method = RequestMethod.POST)
+//    public String contentDeletePost(int contentIdx, String contentPart) {
+//        String res = "0";
+//        // 게시글을 삭제하려면 complaint table에서 먼저 해당 게시글에 대한 신고를 삭제 해야함 (외래키로 잡고있기 때문)
+//        // 외래키관계때문에 신고테이블에서 먼저 삭제후 다른테이블에서 삭제작업필요
+//        res = adminService.setComplaintDelete(contentIdx, contentPart) + "";//신고테이블에서의 삭제처리
+//        res = adminService.setPartDelete(contentIdx, contentPart) + "";//분류된 테이블에서의 삭제처리
+//        return res;
+//    }
+    
+    
 	// 신고글 감추기/보이기
 	@ResponseBody
 	@RequestMapping(value = "/complaint/contentChange", method = RequestMethod.POST)
 	public String contentChangePost(int contentIdx, String contentSw) {
 		return adminService.setContentChange(contentIdx, contentSw) + "";
 	}
+	
+	// 신고글 삭제하기
+	@ResponseBody
+	@RequestMapping(value = "/complaint/contentDelete", method = RequestMethod.POST)
+	public String contentDeletePost(int contentIdx, String part) {
+		String res = "0";
+		res = adminService.setComplaintDelete(contentIdx, part) + "";//신고테이블에서의 삭제처리
+		res = adminService.setContentDelete(contentIdx, part) + "";//분류된 테이블에서의 삭제처리
+		return res;
+	}
+    
+    
 }

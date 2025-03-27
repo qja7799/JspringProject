@@ -20,4 +20,8 @@ public interface AdminService {
 
 	int setContentChange(int contentIdx, String contentSw);
 
+	int setComplaintDelete(int contentIdx, String contentName);
+
+	int setContentDelete(int contentIdx, String contentPart);
+
 }
