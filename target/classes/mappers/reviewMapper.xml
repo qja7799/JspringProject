@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.spring.JspringProject.dao.ReviewDao"> 
+
+	
+	<select id="getPdsReview" resultType="com.spring.JspringProject.vo.ReviewVo">
+		select * from review where (part = #{part} or part = 'delete') and partIdx = #{idx}
+	</select>
+	
+	<select id="getPdsReviewAge" resultType="double"> 
+		select avg(star) from review where part=#{part} and partIdx=#{idx}; 
+	</select>
+	
+	<insert id="setReviewInputOk">
+		insert into review values (default, #{vo.part}, #{vo.partIdx}, #{vo.mid}, #{vo.nickName}, #{vo.star}, #{vo.content}, default, default);
+	</insert>
+	
+	<select id="getPdsReviewReply" resultType="com.spring.JspringProject.vo.ReviewReplyVo">
+		SELECT reviewReply.*
+		FROM review 
+		LEFT JOIN reviewReply  ON idx = reviewIdx
+	<!-- 리뷰테이블의 idx(고유번호)와 댓글테이블의 reviewIdx(리뷰의 고유번호)가 같고 
+		 댓글테이블의 reviewPart(어느게시판에 달린댓글인지)가 pds와 같은거 댓글 전부 표시 
+		 그 게시글의 리뷰리스트를 전부 뻉뻉이 돌리는거라 게시글마다 그에 맞게 결과값나옴 -->
+		where reviewPart = #{part} and reviewIdx = #{rIdx};
+	</select>
+	
+	<insert id="setCommentInputOK">
+		INSERT INTO reviewReply (reviewPart, reviewIdx, replyMid, replyNickName, replyContent)  
+	    VALUES ('pds', #{vo.reviewIdx}, #{vo.replyMid}, #{vo.replyNickName}, #{vo.replyContent});
+	</insert>
+	
+	<update id="setReviewDelete">
+		update review set deleteSw = 'OK' where idx = #{idx} 
+	</update>
+	
+	<delete id="setCommentDelete">
+		delete from reviewReply where replyIdx = #{replyIdx} 
+	</delete>
+	
+</mapper>
+
+
+
+
+

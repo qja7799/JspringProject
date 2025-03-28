@@ -145,7 +145,7 @@ public class AdminController {
 		return adminService.setContentChange(contentIdx, contentSw) + "";
 	}
 	
-	// 신고글 삭제하기
+	// 신고글 삭제하기//0327 경현이꺼 참고해보기
 	@ResponseBody
 	@RequestMapping(value = "/complaint/contentDelete", method = RequestMethod.POST)
 	public String contentDeletePost(int contentIdx, String part) {

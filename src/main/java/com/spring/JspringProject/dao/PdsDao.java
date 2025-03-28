@@ -22,4 +22,8 @@ public interface PdsDao {
 
 	int setpdsDelete(String idx);
 
+	int setPdsDownNumPlus(int idx);
+
+	PdsVo getPdsContent(int idx);
+
 }

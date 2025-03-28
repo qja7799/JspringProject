@@ -17,10 +17,17 @@
 		order by idx desc limit #{startIndexNo}, #{pageSize}
 	</select>
 	
-
+	<select id="getPdsContent" resultType="com.spring.JspringProject.vo.PdsVo">
+		select * from pds where idx = #{idx};
+	</select>
+	
 	<insert id="setPdsInput"> 
 		insert into pds values (default,#{vo.mid},#{vo.nickName},#{vo.fName},#{vo.fSName},#{vo.fSize},#{vo.title},#{vo.content},#{vo.part},#{vo.hostIp},#{vo.openSw},default,default,default); 
 	</insert>
+	
+	<update id="setPdsDownNumPlus">
+		update pds set downNum = downNum + 1 where idx = #{idx};
+	</update>
 	
 	<delete id="setpdsDelete">
 		delete from pds where idx = #{idx};

@@ -1,14 +1,17 @@
 package com.spring.JspringProject.controller;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -16,6 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.multipart.MultipartFile;
@@ -77,6 +81,41 @@ public class HomeController {
 		
 		fos.close();
 		
+	}
+	
+	@GetMapping("/fileDownAction")
+	public void fileDownActionGet(HttpServletRequest request, HttpServletResponse response, 
+			String path, String file) throws IOException {
+		
+		if(path.equals("pds")) path += "/temp/";
+		
+		String realPathFile = request.getSession().getServletContext().getRealPath("/resources/data/" + path) + file;
+		
+		//파일명이 한글일때 에러안나게 처리하기위해 인코딩처리
+		File downFile = new File(realPathFile);
+		
+		String downFileName = new String(file.getBytes("UTF-8"), "8859_1");
+		response.setHeader("Content-Disposition", "attachment;filename=" + downFileName); // Content-Disposition은 예약어 ,다른것도 예약어
+		
+		FileInputStream fis = new FileInputStream(downFile);
+		ServletOutputStream sos = response.getOutputStream();
+		//껍데기 만들기 끝
+		
+		
+		byte[] bytes = new byte[2048];
+		int data = 0;
+		while((data = fis.read(bytes, 0, bytes.length)) != -1) {
+			sos.write(bytes, 0, data);
+		}
+		
+		sos.flush();
+		sos.close();
+		fis.close();
+		
+		//확장성을 생각해서 if문 걸어서 path(자료실에서 넘어온건지,게시판에서넘어온건지)에 따라 유동적으로 대응되게
+		if(path.equals("pds/temp/")) {
+			downFile.delete();
+		}
 	}
 	
 }

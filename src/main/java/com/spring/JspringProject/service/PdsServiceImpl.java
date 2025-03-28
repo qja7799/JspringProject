@@ -1,7 +1,15 @@
 package com.spring.JspringProject.service;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.List;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
+
+import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,6 +25,9 @@ public class PdsServiceImpl implements PdsService {
 	
 	@Autowired
 	PdsDao pdsDao;
+	
+	@Autowired
+	PdsService pdsService;
 	
 	@Autowired
 	ProjectProvide projectProvide;
@@ -73,6 +84,155 @@ public class PdsServiceImpl implements PdsService {
 	public int setpdsDelete(String idx) {
 		return pdsDao.setpdsDelete(idx);
 	}
+
+	@Override
+	public int setPdsDownNumPlus(int idx) {
+		return pdsDao.setPdsDownNumPlus(idx);
+	}
+
+	@Override
+	public PdsVo getPdsContent(int idx) {
+		return pdsDao.getPdsContent(idx);
+	}
+
+//	@Override
+//	public void pdsTotalDown(HttpServletRequest request, int idx) {
+//		String realPath = request.getSession().getServletContext().getRealPath("/resources/data/pds/");
+//		
+//		PdsVo vo = pdsService.getPdsContent(idx);
+//		
+//		String[] fNames = vo.getFName().split("/"); // 파일의 원래이름
+//		String[] fSNames = vo.getFSName().split("/"); // db에 저장된 파일이름
+//		
+//		String zipPath = realPath + "temp"; // 집파일의 경로 설정
+//		String zipName = vo.getTitle() + ".zip"; // 집파일의 이름을 설정
+//		
+//		//껍데기 만들기
+//		FileInputStream fis = null;
+//		FileOutputStream fos = null;
+//		ZipOutputStream zout = null;
+//		try {
+//			zout = new ZipOutputStream(new FileOutputStream(zipPath + zipName));//만들어지는경로와 파일명이 들어가야함
+//			
+//		} catch (FileNotFoundException e1) {
+//			e1.printStackTrace();
+//		}
+//		//껍데기 만들기 끝
+//		
+//		//껍데기에 내용채워넣기
+//		byte[] bytes = new byte[2048];
+//		
+//		for(int i=0; i<fNames.length; i++) {
+//			try {
+//				fis = new FileInputStream(realPath + fSNames[i]);
+//				fos = new FileOutputStream(zipPath + fNames[i]);//경로와 파일명 매개값넣기
+//				File copyFile = new File(zipPath + fNames[i]);
+//				int data = fis.read(bytes, 0, bytes.length);
+//				
+//				while(data != -1) {
+//					fos.write(bytes, 0, data);
+//				}
+//				fos.flush();
+//				fos.close();
+//				fis.close();
+//				
+//				//이제 temp폴더 작업처리
+//				fis = new FileInputStream(copyFile);
+//				zout.putNextEntry(new ZipEntry(fNames[i]));
+//				
+//				while(data != -1) {
+//					zout.write(bytes, 0, data);
+//				}
+//				zout.flush();
+//				zout.closeEntry();
+//				fis.close();
+//				//zout.close(); 이렇게하면 작업하다 중간에 문닫는거라 하나넣고 끝나게됨
+//				
+//			} catch (FileNotFoundException e) {
+//				e.printStackTrace();
+//			} catch (IOException e) {
+//				e.printStackTrace();
+//			}
+//			
+//			try {
+//				zout.close();
+//			} catch (IOException e) {
+//				e.printStackTrace();
+//			}
+//			//작업 완료후 클라이언트로 다운로드
+//		}
+//		
+//		//pdsDao.pdsTotalDown(request, idx);
+//	}
 	
+	@Override
+	public String pdsTotalDown(HttpServletRequest request, int idx) {
+		String realPath = request.getSession().getServletContext().getRealPath("/resources/data/pds/");
+		
+		PdsVo vo = pdsService.getPdsContent(idx);
+		
+		String[] fNames = vo.getFName().split("/");
+		String[] fSNames = vo.getFSName().split("/");
+		
+		String zipPath = realPath + "temp/";
+		String zipName = vo.getTitle() + ".zip";
+		
+		FileInputStream fis = null;
+		FileOutputStream fos = null;
+		ZipOutputStream zout = null;
+		
+		try {
+			zout = new ZipOutputStream(new FileOutputStream(zipPath + zipName));
+		} catch (FileNotFoundException e1) { e1.printStackTrace(); }
+		
+		byte[] bytes = new byte[2048];
+		
+		for(int i=0; i<fNames.length; i++) {
+			try {
+				fis = new FileInputStream(realPath + fSNames[i]);
+				fos = new FileOutputStream(zipPath + fNames[i]);
+				File copyFile = new File(zipPath + fNames[i]);
+				
+				int data = 0;
+				while((data = fis.read(bytes, 0, bytes.length)) != -1) {
+					fos.write(bytes, 0, data);
+				}
+				fos.flush();
+				fos.close();
+				fis.close();
+				
+				fis = new FileInputStream(copyFile);
+				zout.putNextEntry(new ZipEntry(fNames[i]));
+				while((data = fis.read(bytes, 0, bytes.length)) != -1) {
+					zout.write(bytes, 0, data);
+				}
+				zout.flush();
+				zout.closeEntry();
+				fis.close();
+				
+			} catch (FileNotFoundException e) { e.printStackTrace(); } catch (IOException e) {e.printStackTrace();}
+		}
+		try {
+			zout.close();
+		} catch (IOException e) { e.printStackTrace(); }
+		
+		// 작업완료후... 
+		
+		// 서버의 기본파일 삭제처리(temp폴터의 파일 삭제처리, zip파일 제외)
+		File folder = new File(zipPath);
+		File[] files = folder.listFiles();
+		if(files.length != 0) {
+			for(File file : files) {
+				//String fileStr = file.toString();
+				//if(!fileStr.substring(fileStr.lastIndexOf(".")+1).equals("zip")) file.delete();
+				//zip파일 안에 zip파일이 있을수있으니 위의 코드처럼 쓰면안됨
+				String fName = file.toString();
+				if(!zipName.equals(fName.substring(fName.lastIndexOf("\\")+1))) file.delete();
+			}
+		}
+		
+		//클라이언트로 다운로드....
+		return zipName;
+	}
 	
 }
