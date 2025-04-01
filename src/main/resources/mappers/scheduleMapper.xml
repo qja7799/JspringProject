@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.spring.JspringProject.dao.ScheduleDao">
+  
+  <select id="getScheduleList" resultType="com.spring.JspringProject.vo.ScheduleVo">
+<!--   	select * from schedule where mid = #{mid} and date_format(sDate, '%Y-%m') = #{ym} /스케쥴2.jsp의 매퍼-->
+  	select *, count(part) as partCnt from schedule where date_format(sDate, '%Y-%m') = #{ym} and mid = #{mid} group by sDate,part order by sDate, part;
+  	
+  </select>
+  
+  <select id="getScheduleMenu" resultType="com.spring.JspringProject.vo.ScheduleVo">
+  	select * from schedule where mid = #{mid} and date_format(sDate, '%Y-%m-%d') = #{ymd}
+  </select>
+  
+  
+  
+  <insert id="setScheduleInputOk">
+  	insert into schedule values (default, #{vo.mid}, #{vo.ymd}, #{vo.part}, #{vo.content})
+  </insert>
+  
+  <update id="setScheduleUpdateOk">
+  	update schedule set part=#{vo.part}, content=#{vo.content} where idx=#{vo.idx}
+  </update>
+  
+  <delete id="setScheduleDeleteOk">
+  	delete from schedule where idx = #{idx}
+  </delete>
+  
+  
+</mapper>

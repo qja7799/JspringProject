@@ -15,4 +15,6 @@ public interface StudyService {
 
 	int multiFileUpload(MultipartHttpServletRequest mFile);
 
+	void getCalendar();
+
 }
