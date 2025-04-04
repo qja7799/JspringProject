@@ -19,6 +19,7 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import com.spring.JspringProject.common.ProjectProvide;
 import com.spring.JspringProject.dao.StudyDao;
+import com.spring.JspringProject.vo.ChartVo;
 
 @Service
 public class StudyServiceImpl implements StudyService {
@@ -312,5 +313,11 @@ public class StudyServiceImpl implements StudyService {
 		//일은 일요일부터 시작(일월화수목금토) 일:1, 토:7
 		//월은 0이 1월이라 가시성 생각해서 mm+1로 찍어봄
 		//System.out.println("yy: " + yy + ", mm: " + (mm+1) + ", startWeek : " + startWeek + ", lastDay : " + lastDay);
+	}
+
+	@Override
+	public List<ChartVo> getRecentlyVisitCount(int visitCount) {
+		// TODO Auto-generated method stub
+		return studyDao.getRecentlyVisitCount(visitCount);
 	}
 }

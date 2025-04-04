@@ -30,8 +30,10 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -39,6 +41,7 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import com.spring.JspringProject.service.MemberService;
 import com.spring.JspringProject.service.StudyService;
+import com.spring.JspringProject.vo.ChartVo;
 import com.spring.JspringProject.vo.GuestVo;
 import com.spring.JspringProject.vo.MailVo;
 import com.spring.JspringProject.vo.MemberVo;
@@ -677,6 +680,76 @@ public class StudyController {
 		return array;
 	}
 
+	
+	//웹(구글) 차트 연습1
+	@GetMapping("/chart/chart1")
+	public String chart1Get(Model model,
+			@RequestParam(name = "part", defaultValue = "barV", required = false) String part
+			) {
+		model.addAttribute("part", part);
+		return "study/chart/chart1";
+	}
+	
+	//웹(구글) 차트 연습2
+	@GetMapping("/chart2/chart2")
+	public String chart2Get(Model model,
+			@RequestParam(name = "part", defaultValue = "barV", required = false) String part
+			) {
+		model.addAttribute("part", part);
+		return "study/chart2/chart2";
+	}
+	
+	//웹(구글) 차트 연습2 차트출력
+	@RequestMapping(value = "/chart2/googleChart2", method = RequestMethod.POST)
+	public String googleChart2Post(Model model, ChartVo vo) {
+		model.addAttribute("vo", vo);
+		//System.out.println("vo=>"+ vo);
+		return "study/chart2/chart2";
+	}
+	
+	
+	@RequestMapping(value = "/chart2/googleChart2Recently", method = RequestMethod.GET )
+	public String googleChart2RecentlyGet(Model model, ChartVo vo) {
+		System.out.println("part : " + vo.getPart());
+		
+		List<ChartVo> vos = null;
+		if(vo.getPart().equals("line")) {
+			vos = studyService.getRecentlyVisitCount(1);
+
+			// vos자료를 차트에 표시처리가 잘 되지 않을경우에는 각각의 자료를 다시 편집해서 차트로 보내줘야 한다.
+			//이게 무슨 소리냐? vos로 그냥 넘겨도 되는데 지금 웹차트 방법자체가 애초에 값넣고 구글차트에서 차트변환시킨걸 가져오는거라 인터넷이 느릴경우
+			//구글차트에서 차트변환된걸 가져오는게 제대로 안가져와져서 차트가 제대로 출력이 안될수있음 그렇기에
+			//
+			String[] visitDates = new String[7];
+			int[] visitCounts = new int[7];
+			
+			for(int i=0; i<7; i++) {
+				visitDates[i] = vos.get(i).getVisitDate();
+				visitCounts[i] = vos.get(i).getVisitCount();
+				System.out.println("visitDates["+i+"]=>"+visitDates[i]);
+				System.out.println("visitCounts["+i+"]"+visitCounts[i]);
+			}
+			System.out.println("googleChart2RecentlyGet vo=>"+vo);
+			
+			model.addAttribute("vo", vo);//
+			model.addAttribute("part", vo.getPart());
+			model.addAttribute("xTitle", "방문날짜");
+			model.addAttribute("regend", "하루 총 방문자수");
+			
+			model.addAttribute("visitDates", visitDates);
+			model.addAttribute("visitCounts", visitCounts);
+			model.addAttribute("title", "최근 7일간 방문횟수");
+			model.addAttribute("subTitle", "(최근 7일간 방문한 해당일자의 방문자 총수를 표시합니다.");
+		}
+		return "study/chart2/chart2";
+	}
+	
+	
+	
+	
+	
+	
+	
 	
 	
 }

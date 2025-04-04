@@ -2,7 +2,13 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.spring.JspringProject.dao.StudyDao"> <!-- 네임스페이스명은 맘대로 지정가능 -->
 	
-
+	<select id="getRecentlyVisitCount" resultType="com.spring.JspringProject.vo.ChartVo">
+	  <if test="VisitCount == 1">
+	    select substring(visitDate, 1, 10) as visitDate, visitCount from visit order by visitDate desc limit 7;
+	  </if>
+	</select>
+	
+	
 </mapper>
 
 

@@ -5,6 +5,8 @@ import java.util.List;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
+import com.spring.JspringProject.vo.ChartVo;
+
 public interface StudyService {
 
 	String[] getCityStringArray(String dodo);
@@ -16,5 +18,7 @@ public interface StudyService {
 	int multiFileUpload(MultipartHttpServletRequest mFile);
 
 	void getCalendar();
+
+	List<ChartVo> getRecentlyVisitCount(int visitCount);
 
 }
