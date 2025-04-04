@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.spring.JspringProject.dao.WebMessageDao">
+	
+	<select id="getWebmessageList" resultType="com.spring.JspringProject.vo.WebMessageVo">
+		<if test="mSw == 1"><!-- 받은메세지 / 새메세지와 읽은메세지 둘다 보이게-->
+			select * from webMessage where receiveId = #{mid} and (receiveSw='n' or receiveSw='r')
+			order by idx desc limit #{startIndexNo}, #{pageSize}
+		</if>
+		<if test="mSw == 2"><!-- 새 메세지 / 새메세지만 보이게-->
+			select * from webMessage where receiveId = #{mid} and receiveSw='n'
+			order by idx desc limit #{startIndexNo}, #{pageSize}
+		</if>
+		<if test="mSw == 3"><!-- 보낸 메세지 / 보낸메세지만 보이게-->
+			select * from webMessage where sendId = #{mid} and sendSw='s'
+			order by idx desc limit #{startIndexNo}, #{pageSize}
+		</if>
+		<if test="mSw == 4"><!-- 수신확인 / 누가 나한테 보냈냐 + 안읽은것만-->
+			select * from webMessage where sendId = #{mid} and receiveSw='n'
+			order by idx desc limit #{startIndexNo}, #{pageSize}
+		</if>
+		<if test="mSw == 5"><!-- 휴지통 리스트/ 보낸메세지,받은메세지 전부 가져오는데 Sw값이 g(휴지통)인것만 -->
+			select * from webMessage where (receiveId = #{mid} and receiveSw='g') or (sendId = #{mid} and sendSw='g')
+			order by idx desc limit #{startIndexNo}, #{pageSize}
+		</if>
+	</select>
+	
+	<select id="getWebmessageContent" resultType="com.spring.JspringProject.vo.WebMessageVo">
+		select * from webMessage where idx = #{idx};
+	</select>
+	
+	
+	<insert id="setWmInputOk"> 
+		insert into webMessage values (default,#{vo.title},#{vo.content},#{vo.sendId},default,default,#{vo.receiveId},default,default); 
+	</insert>
+
+
+<!-- 받은 메세지를 확인했으면 n에서 r로 바꾸고 받은날짜를 확인날짜로 변경 -->
+	<update id="setWebMessageSwUpdate">
+		update webMessage set receiveSw = 'r', receiveDate = now() where idx=#{idx};
+	</update>
+	
+	<update id="setWebDeleteCheck">
+		update webMessage set 
+		<if test="mFlag == 1">receiveSw = 'g'</if>
+		<if test="mFlag == 3">sendSw = 'g'</if>
+		where idx=#{idx};
+	</update>
+	
+	<update id="setWebDeleteAll">
+		update webMessage set 
+		<if test="receiveId == mid">receiveSw = 'x' where receiveId = #{mid} and receiveSw='g'</if>
+		<if test="sendId == mid">sendSw = 'x' where sendId = #{mid} and sendSw='g'</if>
+	</update>
+	
+	<update id="setWebMessageRecover">
+		update webMessage set 
+		<if test="sendId != mid">receiveSw = 'r' where idx = #{idx} and receiveSw='g'</if>
+		<if test="sendId == mid">sendSw = 's' where idx = #{idx} and sendSw='g'</if>
+	</update>
+	
+	
+	<delete id="setWebDeleteAllProcess">
+		delete from webMessage where receiveSw = 'x' and sendSw = 'x';
+	</delete>
+	
+</mapper>
+
+
+
+
+
